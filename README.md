@@ -32,12 +32,18 @@
 * At Most Once 消息可能会丢, 但绝不会重复传输, 即至多一次
 * At Least Once 消息绝不会丢, 但可能会重复传输, 即至少一次
 * Exactly Once 每条消息肯定会被传输一次且仅传输一次 
+* ISR 跟得上leader的副本列表（包含leader）
 
 #### HA
 1. replication
 > 同一个Partition可能会有多个replica(对应server.properties配置中的default.replication.factor=N),引入replication后,在这些replica间选出一个leader,producer/consumer只与这个leader交互,其它replica作为follower从leader中复制数据 
 2. leader failover
 > 当partition对应的leader宕机时,需要从新选择一个leader,一个基本原则是新的leader必须拥有旧leader commit过的所有消息
+> 1. 优先从isr列表中选出第一个作为leader副本
+> 2. 如果isr列表为空,则查看该topic的unclean.leader.election.enable配置
+>   1. 为true则代表允许选用非isr列表的副本作为leade,那么此时就意味着数据可能丢失
+>   2. 为false的话，则表示不允许，直接抛出NoReplicaOnlineException异常，造成leader副本选举失败
+> 3. 如果上述配置为true，则从其他副本中选出一个作为leader副本，并且isr列表只包含该leader副本
 3. broker failover
     1. "brokers/ids/[brokerId]"节点注册watcher, 当broker宕机时此watcher会被触发
     2. "brokers/ids"读取可用broker,获取宕机broker上的所有partition
