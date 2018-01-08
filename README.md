@@ -41,8 +41,8 @@
 > 当partition对应的leader宕机时,需要从新选择一个leader,一个基本原则是新的leader必须拥有旧leader commit过的所有消息
 > 1. 优先从isr列表中选出第一个作为leader副本
 > 2. 如果isr列表为空,则查看该topic的unclean.leader.election.enable配置
->   1. 为true则代表允许选用非isr列表的副本作为leade,那么此时就意味着数据可能丢失
->   2. 为false的话，则表示不允许，直接抛出NoReplicaOnlineException异常，造成leader副本选举失败
+>    * 为true则代表允许选用非isr列表的副本作为leade,那么此时就意味着数据可能丢失
+>    * 为false的话，则表示不允许，直接抛出NoReplicaOnlineException异常，造成leader副本选举失败
 > 3. 如果上述配置为true，则从其他副本中选出一个作为leader副本，并且isr列表只包含该leader副本
 3. broker failover
     1. "brokers/ids/[brokerId]"节点注册watcher, 当broker宕机时此watcher会被触发
