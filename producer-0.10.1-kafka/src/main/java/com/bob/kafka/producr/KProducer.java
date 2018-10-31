@@ -24,6 +24,12 @@ public class KProducer {
         properties.put("buffer.memory", 33554432);
         properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        // 尝试发送 3 次还是失败再抛出异常
+        properties.put("message.send.max.retries",3);
+
+        /**
+         *  round-robin 策略，当发送到有多个 partition 的 topic 时，或者自己实现 Partitioner 这个接口来选择某个 partition
+         */
 
         // 生产者是线程安全的
         Producer<String, String> KProducer = new KafkaProducer<>(properties);
